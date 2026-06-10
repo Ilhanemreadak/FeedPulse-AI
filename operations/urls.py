@@ -10,4 +10,5 @@ urlpatterns = [
     path('api/records/<int:pk>/', views.api_record_detail, name='api_record_detail'),
     path('api/explain/<int:pk>/', views.api_explain, name='api_explain'),
     path('api/predict/', views.api_predict, name='api_predict'),
+    path('api/ask/<int:pk>/', views.api_ask, name='api_ask'),
 ]

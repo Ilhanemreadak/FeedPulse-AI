@@ -187,7 +187,17 @@ cp .env.example .env
 - Ürün tipi kalite ortalaması horizontal bar chart
 - Anomali trendi line chart (son 30 gün)
 - Son 50 kayıt tablosu (anomaliler kırmızıyla vurgulanır)
-- Kayıt detay sayfası: sensör değerleri + AI açıklama kutusu
+- Kayıt detay sayfası: sensör değerleri + AI açıklama kutusu + soru-cevap chat
+
+### Ekran Görüntüleri
+
+**Anomali Detay Sayfası**
+
+![Anomali Detay](docs/screenshots/img1.png)
+
+**AI ile Soru-Cevap**
+
+![AI Chat](docs/screenshots/img2.png)
 
 ---
 

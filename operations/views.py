@@ -102,6 +102,32 @@ def api_explain(request, pk):
 
 
 @api_view(['POST'])
+def api_ask(request, pk):
+    from .services.explanation_service import answer_question
+    record = get_object_or_404(ProductionRecord, pk=pk)
+    question = (request.data.get('question') or '').strip()
+    if not question:
+        return Response({'error': 'Soru boş olamaz.'}, status=status.HTTP_400_BAD_REQUEST)
+    data = {
+        'temperature': record.temperature,
+        'machine_speed': record.machine_speed,
+        'vibration_level': record.vibration_level,
+        'energy_consumption': record.energy_consumption,
+        'production_quality_score': record.production_quality_score,
+        'humidity': record.humidity,
+        'pressure': record.pressure,
+        'production_volume': record.production_volume,
+        'anomaly_score': record.anomaly_score,
+        'risk_level': record.risk_level,
+        'factory': record.factory,
+        'line_id': record.line_id,
+        'product_type': record.product_type,
+    }
+    answer = answer_question(data, question)
+    return Response({'question': question, 'answer': answer})
+
+
+@api_view(['POST'])
 def api_predict(request):
     from .services.anomaly_service import predict_single_record
     from .services.explanation_service import generate_explanation

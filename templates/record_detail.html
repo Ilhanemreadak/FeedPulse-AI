@@ -117,14 +117,80 @@
 </div>
 {% endif %}
 
+<!-- Ask AI -->
+<div class="card mt-3">
+    <div class="card-header bg-white">
+        <i class="bi bi-chat-dots me-2"></i>Bu Anomali Hakkinda Soru Sor
+        <small class="text-muted ms-2">(AI veya kural tabanli cevap)</small>
+    </div>
+    <div class="card-body">
+        <div id="chat-messages" class="mb-3" style="max-height:300px;overflow-y:auto;"></div>
+        <div class="input-group">
+            <input type="text" id="chat-input" class="form-control"
+                   placeholder="Ornek: Bu anomalinin sebebi ne olabilir? Ne yapmaliyim?"
+                   onkeydown="if(event.key==='Enter') askAI()">
+            <button class="btn btn-primary" onclick="askAI()" id="ask-btn">
+                <i class="bi bi-send"></i> Sor
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- API Links -->
-<div class="card bg-light border-0">
+<div class="card bg-light border-0 mt-2">
     <div class="card-body py-2">
         <small class="text-muted">
             API:
             <a href="/api/records/{{ record.id }}/" class="me-3">JSON Detay</a>
-            <a href="/api/explain/{{ record.id }}/">Aciklama API</a>
+            <a href="/api/explain/{{ record.id }}/" class="me-3">Aciklama API</a>
+            <a href="/api/ask/{{ record.id }}/">Ask API</a>
         </small>
     </div>
 </div>
+
+<script>
+const RECORD_ID = {{ record.id }};
+const CSRF_TOKEN = '{{ csrf_token }}';
+
+function appendMessage(role, text) {
+    const div = document.getElementById('chat-messages');
+    const isUser = role === 'user';
+    div.innerHTML += `
+        <div class="d-flex ${isUser ? 'justify-content-end' : ''} mb-2">
+            <div class="rounded px-3 py-2 small"
+                 style="max-width:80%;background:${isUser ? '#1a2744' : '#f1f5f9'};
+                        color:${isUser ? '#fff' : '#1a2744'};">
+                ${text}
+            </div>
+        </div>`;
+    div.scrollTop = div.scrollHeight;
+}
+
+async function askAI() {
+    const input = document.getElementById('chat-input');
+    const btn = document.getElementById('ask-btn');
+    const question = input.value.trim();
+    if (!question) return;
+
+    appendMessage('user', question);
+    input.value = '';
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+    try {
+        const res = await fetch(`/api/ask/${RECORD_ID}/`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN},
+            body: JSON.stringify({question})
+        });
+        const data = await res.json();
+        appendMessage('ai', data.answer || data.error || 'Cevap alinamadi.');
+    } catch(e) {
+        appendMessage('ai', 'Baglanti hatasi.');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send"></i> Sor';
+    }
+}
+</script>
 {% endblock %}
