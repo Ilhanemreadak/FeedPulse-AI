@@ -1,6 +1,8 @@
 # FeedPulse AI
 ### AI Powered Anomaly Detection for Feed Manufacturing Operations
 
+[![CI](https://github.com/Ilhanemreadak/FeedPulse-AI/actions/workflows/ci.yml/badge.svg)](https://github.com/Ilhanemreadak/FeedPulse-AI/actions/workflows/ci.yml)
+
 ---
 
 ## 1. Problem
@@ -53,7 +55,8 @@ Kolon eşleştirmesi import sırasında otomatik yapılır. Eksik kolonlar sente
 | ML | Scikit-learn (IsolationForest, StandardScaler) |
 | Model Serializasyon | Joblib |
 | Frontend | Django Templates, Bootstrap 5, Chart.js |
-| LLM (opsiyonel) | LangChain, LangChain-OpenAI |
+| LLM (opsiyonel) | LangChain (OpenAI / Anthropic / Groq / Gemini / DeepSeek) |
+| Test & Kalite | pytest, ruff, pre-commit, GitHub Actions CI |
 | Config | python-dotenv |
 
 ---
@@ -192,6 +195,33 @@ Docker Desktop açık olmalı.
 
 ---
 
+## 8c. Geliştirme & Test
+
+Geliştirme araçları (pytest, ruff, pre-commit) `requirements-dev.txt` içindedir.
+
+```bash
+# Runtime + geliştirme bağımlılıkları
+pip install -r requirements.txt -r requirements-dev.txt
+
+# Testler (pytest + pytest-django)
+pytest
+
+# Lint + format (ruff)
+ruff check .
+ruff format .
+
+# Commit öncesi otomatik kontrol (opsiyonel)
+pre-commit install
+```
+
+- **Testler:** `operations/tests/` — servis mantığı (anomaly, mapping, açıklama) ve
+  API kontratları kapsanır. LLM çağrıları mock'lanır, ağ erişimi gerekmez.
+- **CI:** Her push/PR'da GitHub Actions ruff lint/format + pytest çalıştırır
+  (`.github/workflows/ci.yml`).
+- **Config:** Araç ayarları `pyproject.toml` içinde merkezîdir.
+
+---
+
 ## 9. API Endpointleri
 
 | Method | URL | Açıklama |
@@ -202,7 +232,8 @@ Docker Desktop açık olmalı.
 | GET | `/api/records/` | Tüm kayıtlar (sayfalı, `?page=N`) |
 | GET | `/api/anomalies/` | Anomali kayıtları (sayfalı, `?page=N`) |
 | GET | `/api/records/<id>/` | Tek kayıt detayı |
-| GET | `/api/explain/<id>/` | Anomali açıklaması |
+| GET | `/api/explain/<id>/` | Anomali açıklaması (LLM / kural tabanlı) |
+| POST | `/api/ask/<id>/` | Kayıt hakkında serbest soru-cevap |
 | POST | `/api/predict/` | Yeni veri için tahmin |
 
 **POST /api/predict/ örnek:**
@@ -250,5 +281,5 @@ Docker Desktop açık olmalı.
 - **AutoML:** Contamination parametresini otomatik tuning
 - **Multi-model:** Fabrika veya ürün tipine göre ayrı model stratejisi
 - **Feature engineering:** Lag features, rolling ortalamalar
-- **Deployment:** Docker + Nginx + Gunicorn
+- **Deployment:** Nginx reverse proxy + managed Postgres (Docker/Gunicorn mevcut)
 - **Auth:** Fabrika bazlı kullanıcı yetkilendirmesi
