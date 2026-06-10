@@ -1,12 +1,16 @@
 import os
-import numpy as np
+
+import joblib
 import pandas as pd
 from django.core.management.base import BaseCommand
+
 from operations.models import ProductionRecord
 from operations.services.anomaly_service import (
-    get_feature_columns, calculate_risk_level, MODEL_PATH, SCALER_PATH
+    MODEL_PATH,
+    SCALER_PATH,
+    calculate_risk_level,
+    get_feature_columns,
 )
-import joblib
 
 
 class Command(BaseCommand):
@@ -58,14 +62,14 @@ class Command(BaseCommand):
             records_to_update.append(record)
 
         ProductionRecord.objects.bulk_update(
-            records_to_update,
-            ['predicted_anomaly', 'anomaly_score', 'risk_level'],
-            batch_size=500
+            records_to_update, ['predicted_anomaly', 'anomaly_score', 'risk_level'], batch_size=500
         )
 
         anom_count = sum(1 for _, is_anom, _ in batch if is_anom)
         total = len(batch)
         rate = round(anom_count / total * 100, 1)
-        self.stdout.write(self.style.SUCCESS(
-            f"Eğitim tamamlandı | Toplam: {total} | Anomali: {anom_count} ({rate}%)"
-        ))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Eğitim tamamlandı | Toplam: {total} | Anomali: {anom_count} ({rate}%)"
+            )
+        )

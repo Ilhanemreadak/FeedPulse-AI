@@ -1,14 +1,20 @@
-import os
-import joblib
 from pathlib import Path
+
+import joblib
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 MODEL_PATH = BASE_DIR / 'ml_models' / 'anomaly_model.joblib'
 SCALER_PATH = BASE_DIR / 'ml_models' / 'scaler.joblib'
 
 FEATURE_COLUMNS = [
-    'temperature', 'machine_speed', 'vibration_level', 'energy_consumption',
-    'production_quality_score', 'humidity', 'pressure', 'production_volume',
+    'temperature',
+    'machine_speed',
+    'vibration_level',
+    'energy_consumption',
+    'production_quality_score',
+    'humidity',
+    'pressure',
+    'production_volume',
 ]
 
 

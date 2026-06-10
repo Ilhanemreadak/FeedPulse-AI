@@ -1,0 +1,26 @@
+[project]
+name = "feedpulse-ai"
+version = "0.1.0"
+description = "Manufacturing anomaly detection with AI-assisted explanations (Django + DRF)."
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "DJ"]
+# E501 handled by the formatter; allow long lines it can't break (e.g. f-strings).
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"operations/tests/*" = ["B011"]
+
+[tool.ruff.format]
+quote-style = "preserve"
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "feedpulse_ai.settings"
+python_files = ["test_*.py"]
+testpaths = ["operations/tests"]

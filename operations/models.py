@@ -27,3 +27,27 @@ class ProductionRecord(models.Model):
 
     def __str__(self):
         return f"{self.factory} - {self.line_id} - {self.product_type} - {self.timestamp}"
+
+    def feature_dict(self) -> dict:
+        """The 8 ML feature values plus the anomaly score, as fed to the services."""
+        return {
+            'temperature': self.temperature,
+            'machine_speed': self.machine_speed,
+            'vibration_level': self.vibration_level,
+            'energy_consumption': self.energy_consumption,
+            'production_quality_score': self.production_quality_score,
+            'humidity': self.humidity,
+            'pressure': self.pressure,
+            'production_volume': self.production_volume,
+            'anomaly_score': self.anomaly_score,
+        }
+
+    def context_dict(self) -> dict:
+        """Feature values enriched with risk and identity context for LLM Q&A."""
+        return {
+            **self.feature_dict(),
+            'risk_level': self.risk_level,
+            'factory': self.factory,
+            'line_id': self.line_id,
+            'product_type': self.product_type,
+        }

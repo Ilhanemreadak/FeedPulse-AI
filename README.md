@@ -199,8 +199,8 @@ Docker Desktop açık olmalı.
 | GET | `/dashboard/` | Ana dashboard (HTML) |
 | GET | `/records/<id>/` | Kayıt detayı (HTML) |
 | GET | `/api/summary/` | Özet istatistikler |
-| GET | `/api/records/` | Son 100 kayıt |
-| GET | `/api/anomalies/` | Anomali kayıtları |
+| GET | `/api/records/` | Tüm kayıtlar (sayfalı, `?page=N`) |
+| GET | `/api/anomalies/` | Anomali kayıtları (sayfalı, `?page=N`) |
 | GET | `/api/records/<id>/` | Tek kayıt detayı |
 | GET | `/api/explain/<id>/` | Anomali açıklaması |
 | POST | `/api/predict/` | Yeni veri için tahmin |

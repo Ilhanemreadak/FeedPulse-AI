@@ -1,14 +1,25 @@
 import random
+from datetime import datetime, timedelta
+
 import numpy as np
 import pandas as pd
-from datetime import datetime, timedelta
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
+
 from operations.models import ProductionRecord
 from operations.services.data_mapping_service import map_columns
 
-FACTORIES = ['Karacabey', 'Konya', 'Tekirdağ', 'Manisa', 'Samsun',
-             'Gaziantep', 'Burdur', 'Polatlı', 'Diyarbakır']
+FACTORIES = [
+    'Karacabey',
+    'Konya',
+    'Tekirdağ',
+    'Manisa',
+    'Samsun',
+    'Gaziantep',
+    'Burdur',
+    'Polatlı',
+    'Diyarbakır',
+]
 LINES = ['L1', 'L2', 'L3', 'L4']
 PRODUCT_TYPES = ['Büyükbaş Yemi', 'Küçükbaş Yemi', 'Kanatlı Yemi', 'Özel Yem', 'Kedi Köpek Maması']
 
@@ -33,8 +44,8 @@ class Command(BaseCommand):
         path = options['csv_file']
         try:
             df = pd.read_csv(path)
-        except FileNotFoundError:
-            raise CommandError(f"Dosya bulunamadı: {path}")
+        except FileNotFoundError as e:
+            raise CommandError(f"Dosya bulunamadı: {path}") from e
 
         self.stdout.write(f"Yüklendi: {len(df)} satır, {path}")
         self.stdout.write(f"Kolonlar: {list(df.columns)}")
@@ -88,8 +99,14 @@ class Command(BaseCommand):
             )
 
         numeric_cols = [
-            'temperature', 'machine_speed', 'vibration_level', 'energy_consumption',
-            'production_quality_score', 'humidity', 'pressure', 'production_volume',
+            'temperature',
+            'machine_speed',
+            'vibration_level',
+            'energy_consumption',
+            'production_quality_score',
+            'humidity',
+            'pressure',
+            'production_volume',
         ]
         for col in numeric_cols:
             if col in df.columns:
@@ -111,23 +128,25 @@ class Command(BaseCommand):
                 except Exception:
                     ts = timezone.now()
 
-            records.append(ProductionRecord(
-                timestamp=ts,
-                factory=str(row.get('factory', 'Unknown')),
-                line_id=str(row.get('line_id', 'L1')),
-                product_type=str(row.get('product_type', 'Bilinmiyor')),
-                temperature=_safe_float(row.get('temperature')),
-                machine_speed=_safe_float(row.get('machine_speed')),
-                vibration_level=_safe_float(row.get('vibration_level')),
-                energy_consumption=_safe_float(row.get('energy_consumption')),
-                production_quality_score=_safe_float(row.get('production_quality_score')),
-                humidity=_safe_float(row.get('humidity')),
-                pressure=_safe_float(row.get('pressure')),
-                production_volume=_safe_float(row.get('production_volume')),
-                optimal_condition=bool(row.get('optimal_condition', True)),
-                is_anomaly=bool(row.get('is_anomaly', False)),
-                anomaly_reason=str(row.get('anomaly_reason', '') or ''),
-            ))
+            records.append(
+                ProductionRecord(
+                    timestamp=ts,
+                    factory=str(row.get('factory', 'Unknown')),
+                    line_id=str(row.get('line_id', 'L1')),
+                    product_type=str(row.get('product_type', 'Bilinmiyor')),
+                    temperature=_safe_float(row.get('temperature')),
+                    machine_speed=_safe_float(row.get('machine_speed')),
+                    vibration_level=_safe_float(row.get('vibration_level')),
+                    energy_consumption=_safe_float(row.get('energy_consumption')),
+                    production_quality_score=_safe_float(row.get('production_quality_score')),
+                    humidity=_safe_float(row.get('humidity')),
+                    pressure=_safe_float(row.get('pressure')),
+                    production_volume=_safe_float(row.get('production_volume')),
+                    optimal_condition=bool(row.get('optimal_condition', True)),
+                    is_anomaly=bool(row.get('is_anomaly', False)),
+                    anomaly_reason=str(row.get('anomaly_reason', '') or ''),
+                )
+            )
 
         ProductionRecord.objects.bulk_create(records, batch_size=500)
         self.stdout.write(self.style.SUCCESS(f"Import tamamlandı: {len(records)} kayıt eklendi."))

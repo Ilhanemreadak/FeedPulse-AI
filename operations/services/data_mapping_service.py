@@ -1,12 +1,11 @@
 import re
 
-
 COLUMN_MAP = {
     # timestamp
     'timestamp': 'timestamp',
     # temperature variants
     'temperature': 'temperature',
-    'temperature_c': 'temperature',        # Temperature (°C)
+    'temperature_c': 'temperature',  # Temperature (°C)
     'temperature__c': 'temperature',
     'temperature___c': 'temperature',
     'temp': 'temperature',
