@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard — FeedPulse AI{% endblock %}
+
+{% block content %}
+
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-2">
+        <div class="card stat-card text-center p-3 h-100">
+            <div class="text-muted small mb-1">Toplam Kayit</div>
+            <div class="hero-metric text-dark">{{ total_records|default:"0" }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card stat-card text-center p-3 h-100">
+            <div class="text-muted small mb-1">Anomali</div>
+            <div class="hero-metric text-danger">{{ anomaly_count|default:"0" }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card stat-card text-center p-3 h-100">
+            <div class="text-muted small mb-1">Anomali Orani</div>
+            <div class="hero-metric text-warning">{{ anomaly_rate|default:"0" }}%</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card stat-card text-center p-3 h-100">
+            <div class="text-muted small mb-1">Ort. Kalite</div>
+            <div class="hero-metric text-success">{{ avg_quality|default:"—" }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card stat-card text-center p-3 h-100">
+            <div class="text-muted small mb-1">Ort. Enerji (kWh)</div>
+            <div class="hero-metric text-info">{{ avg_energy|default:"—" }}</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-2">
+        <div class="card stat-card text-center p-3 h-100">
+            <div class="text-muted small mb-1">En Riskli Fabrika</div>
+            <div class="fs-5 fw-bold text-danger mt-1">{{ riskiest_factory|default:"—" }}</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row 1 -->
+<div class="row g-3 mb-4">
+    <div class="col-md-6">
+        <div class="card p-3 h-100">
+            <div class="fw-semibold mb-2 text-secondary small text-uppercase">Fabrikaya Gore Anomali</div>
+            <canvas id="factoryChart" height="160"></canvas>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 h-100">
+            <div class="fw-semibold mb-2 text-secondary small text-uppercase">Risk Dagilimi</div>
+            <canvas id="riskChart" height="200"></canvas>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 h-100">
+            <div class="fw-semibold mb-2 text-secondary small text-uppercase">Urun Tipi Kalite Ort.</div>
+            <canvas id="qualityChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Trend Chart -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card p-3">
+            <div class="fw-semibold mb-2 text-secondary small text-uppercase">Anomali Trendi (Son 30 Gun)</div>
+            <canvas id="trendChart" height="70"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Records Table -->
+<div class="card">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center">
+        <span>Son 50 Kayit</span>
+        <a href="/api/records/" class="btn btn-outline-secondary btn-sm">Tum API</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Tarih</th>
+                    <th>Fabrika</th>
+                    <th>Hat</th>
+                    <th>Urun Tipi</th>
+                    <th>Sicaklik</th>
+                    <th>Titresim</th>
+                    <th>Enerji</th>
+                    <th>Kalite</th>
+                    <th>Anomali</th>
+                    <th>Risk</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for r in recent_records %}
+            <tr {% if r.predicted_anomaly %}class="anomaly-row"{% endif %}>
+                <td class="small text-muted">{{ r.timestamp|date:"d.m.Y H:i" }}</td>
+                <td class="fw-semibold">{{ r.factory }}</td>
+                <td>{{ r.line_id }}</td>
+                <td class="small">{{ r.product_type }}</td>
+                <td>{% if r.temperature %}{{ r.temperature|floatformat:1 }}°C{% else %}—{% endif %}</td>
+                <td>{% if r.vibration_level %}{{ r.vibration_level|floatformat:2 }}{% else %}—{% endif %}</td>
+                <td>{% if r.energy_consumption %}{{ r.energy_consumption|floatformat:1 }}{% else %}—{% endif %}</td>
+                <td>{% if r.production_quality_score %}{{ r.production_quality_score|floatformat:1 }}{% else %}—{% endif %}</td>
+                <td>
+                    {% if r.predicted_anomaly %}
+                        <span class="badge bg-danger">Anomali</span>
+                    {% else %}
+                        <span class="badge bg-success">Normal</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="risk-indicator risk-{{ r.risk_level }}"></span>
+                    <span class="badge badge-{{ r.risk_level }} text-white">{{ r.risk_level|upper }}</span>
+                </td>
+                <td>
+                    <a href="/records/{{ r.id }}/" class="btn btn-sm btn-outline-primary">Detay</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="11" class="text-center text-muted py-5">
+                    <i class="bi bi-database-x fs-3 d-block mb-2"></i>
+                    Veri yok. <code>python manage.py import_dataset</code> komutunu calistirin.
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Chart data -->
+<script>
+    const factoryData = {{ factory_anomalies_json|safe }};
+    const riskData = {{ risk_dist_json|safe }};
+    const trendData = {{ daily_trend_json|safe }};
+    const qualityData = {{ product_quality_json|safe }};
+</script>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}
