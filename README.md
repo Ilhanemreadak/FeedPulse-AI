@@ -201,23 +201,7 @@ cp .env.example .env
 
 ---
 
-## 11. Mülakat Anlatım Noktaları
-
-### Kısa Versiyon (30 saniye)
-
-> "FeedPulse AI projesinde üretim hattından gelen sensör ve operasyon verilerini kullanarak anomali tespiti yapan bir sistem geliştirdim. Matlı gibi yem, gıda, hammadde, kalite ve lojistik süreçleri olan yapılarda bu tarz sistemler erken uyarı mekanizması olarak kullanılabilir. Model olarak IsolationForest tercih ettim çünkü gerçek üretim ortamlarında tüm hata tiplerinin önceden etiketlenmiş olması beklenmez. Sistem normal üretim davranışını öğreniyor ve bu davranıştan sapan kayıtları riskli olarak işaretliyor. Django tarafında dashboard ve API geliştirdim. Ayrıca her anomali için operasyon ekibinin anlayacağı şekilde açıklama ve öneri üreten bir katman ekledim."
-
-### Teknik Versiyon (2 dakika)
-
-> "Veriyi pandas ile işledim, eksik değerleri medyan ile doldurdum, numerik feature'ları StandardScaler ile ölçekledim. IsolationForest ile anomaly score ürettim. Skora göre low/medium/high risk seviyeleri çıkardım. Sonuçları Django modeline yazıp dashboard'da fabrika, hat, ürün tipi ve zaman bazlı görselleştirdim.
->
-> Açıklama katmanı için önce rule-based bir sistem kurdum: sıcaklık > 85, titreşim > 7 gibi eşikler. Ortamda OpenAI API key varsa LangChain ile LLM açıklaması dönüyor, yoksa rule-based fallback çalışıyor. Bu mimari ile sistem API key olmadan da sorunsuz çalışıyor.
->
-> Böylece sadece model değil, uçtan uca küçük bir karar destek sistemi kurmuş oldum: veri ingestion > ML model > risk skorlama > açıklama servisi > REST API > dashboard."
-
----
-
-## 12. Geliştirme Fırsatları
+## 11. Geliştirme Fırsatları
 
 - **Real-time:** Celery + Redis ile streaming anomali tespiti
 - **Alerting:** E-posta / SMS bildirimleri
