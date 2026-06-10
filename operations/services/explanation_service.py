@@ -1,4 +1,7 @@
 import os
+import logging
+
+logger = logging.getLogger('feedpulse.llm')
 
 SYSTEM_PROMPT = (
     "Sen üretim operasyonları için çalışan bir AI karar destek asistanısın. "
@@ -27,9 +30,12 @@ def generate_explanation(data: dict) -> dict:
     provider, api_key = _detect_provider()
     if provider:
         try:
+            logger.info("LLM explanation via %s", provider)
             return _llm_explanation(data, provider, api_key)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.exception("LLM explanation FAILED (%s): %s -> rule-based fallback", provider, e)
+    else:
+        logger.info("No LLM key found -> rule-based explanation")
     return _rule_based_explanation(data)
 
 
@@ -151,9 +157,12 @@ def answer_question(data: dict, question: str) -> str:
     provider, api_key = _detect_provider()
     if provider:
         try:
+            logger.info("LLM answer via %s | q=%r", provider, question[:60])
             return _call_llm_question(data, question, provider, api_key)
-        except Exception:
-            pass
+        except Exception as e:
+            logger.exception("LLM answer FAILED (%s): %s -> rule-based fallback", provider, e)
+    else:
+        logger.info("No LLM key found -> rule-based answer")
     return _rule_based_answer(data, question)
 
 

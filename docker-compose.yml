@@ -1,0 +1,16 @@
+services:
+  feedpulse-ai:
+    build: .
+    container_name: feedpulse-ai
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+      - ./ml_models:/app/ml_models
+      - ./data:/app/data
+    env_file:
+      - .env
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-feedpulse-docker-demo-key
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0

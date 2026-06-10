@@ -150,6 +150,48 @@ cp .env.example .env
 
 ---
 
+## 8b. Docker ile Çalıştırma
+
+En kolay yol — tek komutla migrate + veri import + model eğitimi + sunucu.
+
+**Build:**
+```bash
+docker compose build
+```
+
+**Çalıştır:**
+```bash
+docker compose up
+```
+
+**Arka planda:**
+```bash
+docker compose up -d
+```
+
+**Log izleme:**
+```bash
+docker compose logs -f
+```
+
+**Durdurma:**
+```bash
+docker compose down
+```
+
+**Uygulama:** http://localhost:8000
+**Admin:** http://localhost:8000/admin/
+
+> **Not:** İlk açılışta container otomatik olarak migrate, collectstatic,
+> dataset import ve model training işlemlerini yapar. Model eğitimi nedeniyle
+> ilk açılış birkaç dakika sürebilir. Sonraki açılışlarda veri ve model zaten
+> mevcut olduğundan hızlı başlar (idempotent entrypoint).
+
+**Windows (Docker Desktop):** Komutlar aynı. PowerShell veya CMD'de çalışır.
+Docker Desktop açık olmalı.
+
+---
+
 ## 9. API Endpointleri
 
 | Method | URL | Açıklama |

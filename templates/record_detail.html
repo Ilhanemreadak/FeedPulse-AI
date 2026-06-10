@@ -183,10 +183,29 @@ async function askAI() {
             headers: {'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN},
             body: JSON.stringify({question})
         });
-        const data = await res.json();
+
+        const raw = await res.text();
+        let data;
+        try {
+            data = JSON.parse(raw);
+        } catch (parseErr) {
+            // Cevap JSON degil (muhtemelen 403/500 HTML sayfasi)
+            console.error('Ask API non-JSON response:', res.status, raw.slice(0, 300));
+            appendMessage('ai', `Sunucu hatasi (HTTP ${res.status}). Detay icin konsola bak (F12).`);
+            return;
+        }
+
+        if (!res.ok) {
+            console.error('Ask API error:', res.status, data);
+            appendMessage('ai', `Hata (HTTP ${res.status}): ${data.error || data.detail || 'bilinmeyen hata'}`);
+            return;
+        }
+
         appendMessage('ai', data.answer || data.error || 'Cevap alinamadi.');
     } catch(e) {
-        appendMessage('ai', 'Baglanti hatasi.');
+        // Gercek aglatma/baglanti hatasi (fetch reject)
+        console.error('Ask API fetch failed:', e);
+        appendMessage('ai', `Baglanti hatasi: ${e.message}. Sunucu calisiyor mu? (F12 konsol)`);
     } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-send"></i> Sor';

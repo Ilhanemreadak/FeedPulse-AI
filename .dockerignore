@@ -1,0 +1,15 @@
+venv/
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+.env
+db.sqlite3
+ml_models/*.joblib
+staticfiles/
+.DS_Store
+*.log
+docs/screenshots/
+img/
